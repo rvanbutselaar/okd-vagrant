@@ -1,0 +1,89 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# cpu = # cpu per VM
+cpu = 3
+
+#
+# mem = MB ram per VM
+#
+mem = 4096
+
+#
+# Do not update guest utils on vms
+#
+# vbguest_auto_update = false
+
+#
+# project name will be used to generate hostnames: <project#{node_nr}>
+#
+project = 'okd'
+
+#
+# Check if config needs to be generated
+#
+if ARGV[0] == 'up' || ARGV[0] == 'reload'
+  update_config = true
+end
+
+Vagrant.configure(2) do |config|
+  #
+  # vm specs
+  #
+  config.vm.provider "virtualbox" do |v|
+    v.memory = mem
+    v.cpus = cpu
+  end
+
+  #
+  # Use insecure key
+  config.ssh.insert_key = false
+  #
+
+  #
+  # Configre private_ip as hostname
+  #
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+  config.hostmanager.ignore_private_ip = false
+
+  #
+  # M = total masters to create
+  # N = total nodes to create
+  #
+  N = 1
+
+  #
+  # Local username
+  #
+  $local_username ||= `whoami`
+
+  #
+  # Create master nodes
+  #
+  (1..N).each do | node_nr |
+    hostname = project + "-master#{node_nr}"
+    random_ssh_port = (30000..65534).to_a.sample
+    random_http_port = (30000..65534).to_a.sample
+    random_https_port = (30000..65534).to_a.sample
+
+    config.vm.define hostname do | node |
+      # node.vbguest.auto_update = vbguest_auto_update
+      node.vm.box = 'centos/7'
+      node.vm.hostname = hostname
+      node.vm.network :forwarded_port, guest: 22, host: random_ssh_port, id: "ssh"
+      node.vm.network :forwarded_port, guest: 80, host: random_http_port, id: "http"
+      node.vm.network :forwarded_port, guest: 443, host: random_https_port, id: "https"
+      node.vm.network "forwarded_port", guest: 8443, host: 8443
+      node.vm.network "private_network", ip: "10.0.0.11#{node_nr}"
+
+      #
+      # Provision VMs using shell
+      # Remove default Vagrant hostfile line, we want to use hostmanager
+      #
+      node.vm.provision :shell, inline: "sed -i'' '/^127.0.0.1\\t#{node.vm.hostname}\\t#{hostname}$/d' /etc/hosts"
+      node.vm.provision :shell, :path => "prepare-install.sh"
+    end
+  end
+end
