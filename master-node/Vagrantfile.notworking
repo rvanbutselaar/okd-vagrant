@@ -1,0 +1,69 @@
+
+# -*- mode: ruby -*-
+# vim: ft=ruby
+
+
+# ---- Configuration variables ----
+GUI               = false # Enable/Disable GUI
+CPU               = 3
+RAM               = 4096   # Default memory size in MB
+
+# Network configuration
+NETWORK           = "10.0.0.11"
+SSH               = "220"
+
+# Default Virtualbox .box
+BOX               = 'centos/7'
+
+# Hosts
+HOSTS = {
+   "okd-master1" => [SSH+"0", NETWORK+"0", CPU, RAM, GUI, BOX],
+   "okd-node1" => [SSH+"1", NETWORK+"1", CPU, RAM, GUI, BOX],
+}
+
+ANSIBLE_INVENTORY_DIR = 'ansible/inventory'
+
+# ---- Vagrant configuration ----
+
+Vagrant.configure(2) do |config|
+  HOSTS.each do | (name, cfg) |
+    ssh, ipaddr, cpu, ram, gui, box = cfg
+
+    config.hostmanager.enabled = true
+    config.hostmanager.manage_host = true
+    config.hostmanager.manage_guest = true
+    config.hostmanager.ignore_private_ip = false
+    config.ssh.insert_key = false
+
+    config.vm.define name do |machine|
+      random_console_port = (30000..65534).to_a.sample
+
+      machine.vm.box   = box
+
+      machine.vm.provider "virtualbox" do |vbox|
+        vbox.gui    = gui
+        vbox.cpus   = cpu
+        vbox.memory = ram
+        vbox.name   = name
+      end
+
+      machine.vm.hostname = name
+      machine.vm.network 'private_network', ip: ipaddr
+      machine.vm.network :forwarded_port, guest: 22, host: ssh
+      machine.vm.network :forwarded_port, guest: 8443, host: random_console_port, id: "console"
+      machine.vm.provision :shell, :path => "prepare-install.sh"
+
+    # start with latest node
+     if machine.vm.hostname == "okd-node1"
+        config.vm.provision "ansible" do |ansible|
+          ansible.inventory_path=ANSIBLE_INVENTORY_DIR
+          ansible.playbook = "/Users/ronaldb/openshift/openshift-ansible/playbooks/prerequisites.yml"
+          ansible.limit = ""
+          # ansible.raw_arguments = '--list-hosts'
+          ansible.become = true
+          ansible.verbose = 'vv'
+        end
+      end
+    end
+  end
+end

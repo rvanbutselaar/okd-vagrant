@@ -1,0 +1,109 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+#
+# cpu = # cpu per VM
+cpu = 3
+
+#
+# mem = MB ram per VM
+#
+mem = 4096
+
+#
+# Do not update guest utils on vms
+#
+# vbguest_auto_update = false
+
+#
+# Check if config needs to be generated
+#
+if ARGV[0] == 'up' || ARGV[0] == 'reload'
+  update_config = true
+end
+
+Vagrant.configure(2) do |config|
+  #
+  # vm specs
+  #
+  config.vm.provider "virtualbox" do |v|
+    v.memory = mem
+    v.cpus = cpu
+  end
+
+  #
+  # Use insecure key
+  config.ssh.insert_key = false
+
+  #
+  # Configre private_ip as hostname
+  #
+  config.hostmanager.enabled = true
+  config.hostmanager.manage_host = true
+  config.hostmanager.manage_guest = true
+  config.hostmanager.ignore_private_ip = false
+
+  #
+  # NODE_COUNT = total nodes to create, currently only '1' is supported
+  #
+  NODE_COUNT = 1
+
+  #
+  # Local username
+  #
+  $local_username ||= `whoami`
+
+  #
+  # Create nodes
+  #
+  config.vm.define "okd-master1" do |node|
+    node.vm.box = 'centos/7'
+    node.vm.hostname = 'okd-master1'
+
+    random_ssh_port = (30000..65534).to_a.sample
+    random_console_port = (30000..65534).to_a.sample
+    random_http_port = (30000..65534).to_a.sample
+    random_https_port = (30000..65534).to_a.sample
+
+    node.vm.network :forwarded_port, guest: 22, host: random_ssh_port, id: "ssh"
+    node.vm.network :forwarded_port, guest: 8443, host: random_console_port, id: "console"
+    node.vm.network :forwarded_port, guest: 80, host: random_http_port, id: "http"
+    node.vm.network :forwarded_port, guest: 443, host: random_https_port, id: "https"
+    node.vm.network "private_network", ip: "10.0.0.110"
+
+    #
+    # Provision VMs using shell
+    #
+    node.vm.provision :shell, :path => "prepare-install.sh"
+  end
+
+  (1..NODE_COUNT).each do |node_nr|
+    config.vm.define "okd-node#{node_nr}" do |node|
+      node.vm.box = 'centos/7'
+      hostname = "okd-node#{node_nr}"
+      node.vm.hostname = hostname
+      random_ssh_port = (30000..65534).to_a.sample
+
+      node.vm.network :forwarded_port, guest: 22, host: random_ssh_port, id: "ssh"
+      node.vm.network "private_network", ip: "10.0.0.11#{node_nr}"
+
+      #
+      # Provision VMs using shell
+      #
+      if node_nr == NODE_COUNT
+        node.vm.provision :shell, :path => "prepare-install.sh"
+        node.vm.provision :ansible do |ansible|
+          ansible.limit = ""
+          ansible.become = true
+          ansible.inventory_path = "ansible/inventory"
+          ansible.playbook = "/Users/ronaldb/openshift/openshift-ansible/playbooks/prerequisites.yml"
+        end
+        node.vm.provision :ansible do |ansible|
+          ansible.limit = ""
+          ansible.become = true
+          ansible.inventory_path = "ansible/inventory"
+          ansible.playbook = "/Users/ronaldb/openshift/openshift-ansible/playbooks/deploy_cluster.yml"
+        end
+      end
+    end
+  end
+end
