@@ -20,9 +20,9 @@ openshift_disable_check=memory_availability,disk_availability,docker_storage
 openshift_release="3.10"
 
 ansible_service_broker_install=false
-# openshift_metrics_install_metrics=true
-# openshift_logging_install_logging=true
-# openshift_hosted_prometheus_deploy=true
+#openshift_metrics_install_metrics=true
+#openshift_logging_install_logging=true
+#openshift_hosted_prometheus_deploy=true
 
 openshift_master_default_subdomain=apps.localhost
 

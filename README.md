@@ -9,15 +9,15 @@ cd ~/openshift-ansible && ansible-playbook -i /vagrant/ansible/inventory playboo
 # 1 master & 1 node
 ```
 pip install ansible==2.4.3.0
-mkdir ~/openshift && cd ~/openshift
-git clone https://github.com/openshift/openshift-ansible && cd openshift-ansible && git checkout release-3.10
-cd master-node
-vagrant up
-vagrant port
+make clean && make clone && make masternode
 ```
 
-# Watch status during installation
+# Watch status during installation inside okd-master1
 ```
 sudo -i
 watch -n2 "oc get no -o wide; docker ps; oc get po --all-namespaces"
 ```
+
+# Open web console
+
+Go to: https://okd-master1:8443/console/catalog and login as admin:admin
