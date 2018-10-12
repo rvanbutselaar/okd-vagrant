@@ -1,5 +1,5 @@
 GIT_TMP_DIR=/tmp
-ODK_VERSION=release-3.10
+ODK_VERSION=release-3.11
 
 clone:
 	git clone -b ${ODK_VERSION} https://github.com/openshift/openshift-ansible ${GIT_TMP_DIR}/openshift-ansible
@@ -12,7 +12,5 @@ masternode:
 
 clean:
 	rm -rvf ${GIT_TMP_DIR}/openshift-ansible
-	cd master-node &&	vagrant destroy -f
-	cd all-in-one &&vagrant destroy -f
 
 .PHONY: clone
