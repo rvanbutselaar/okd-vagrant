@@ -21,6 +21,10 @@ openshift_disable_check=memory_availability,disk_availability,docker_storage
 openshift_release="3.10"
 openshift_ip=10.0.0.111
 
+openshift_release="3.11"
+openshift_additional_repos=[{'id': 'centos-okd-ci', 'name': 'centos-okd-ci', 'baseurl' :'https://rpms.svc.ci.openshift.org/openshift-origin-v3.11', 'gpgcheck' :'0', 'enabled' :'1'}]
+
+
 ansible_service_broker_install=false
 #openshift_metrics_install_metrics=true
 #openshift_logging_install_logging=true

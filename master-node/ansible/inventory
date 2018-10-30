@@ -8,9 +8,6 @@ etcd
 [OSEv3:vars]
 ansible_become=true
 
-# fatal: [okd-master1]: FAILED! => {"changed": false, "msg": "Package origin-docker-excluder not found"}
-openshift_enable_excluders=false
-
 containerized=true
 
 openshift_deployment_type=origin
@@ -23,11 +20,17 @@ openshift_master_htpasswd_users={'admin': '$apr1$Mf7W16Gb$6qoVR4GSLFueI4XpdMSa60
 openshift_disable_check=memory_availability,disk_availability,docker_storage
 
 openshift_release="3.11"
+openshift_additional_repos=[{'id': 'centos-okd-ci', 'name': 'centos-okd-ci', 'baseurl' :'https://rpms.svc.ci.openshift.org/openshift-origin-v3.11', 'gpgcheck' :'0', 'enabled' :'1'}]
+
+openshift_use_crio=True
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
 
 ansible_service_broker_install=false
-#openshift_metrics_install_metrics=true
-#openshift_logging_install_logging=true
-#openshift_hosted_prometheus_deploy=true
+openshift_metrics_install_metrics=false
+openshift_logging_install_logging=false
+openshift_logging_es_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_cluster_monitoring_operator_install=false
+openshift_node_problem_detector_install=true
 
 openshift_master_default_subdomain=apps.localhost
 

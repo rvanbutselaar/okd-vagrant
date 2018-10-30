@@ -7,7 +7,7 @@ cpu = 3
 #
 # mem = MB ram per VM
 #
-mem = 4096
+mem = 5120
 
 #
 # Do not update guest utils on vms
@@ -69,6 +69,7 @@ Vagrant.configure(2) do |config|
     node.vm.network :forwarded_port, guest: 80, host: random_http_port, id: "http"
     node.vm.network :forwarded_port, guest: 443, host: random_https_port, id: "https"
     node.vm.network "private_network", ip: "10.0.0.110"
+    node.hostmanager.aliases = %w(console.apps.localhost alertmanager-main-openshift-monitoring.apps.localhost grafana-openshift-monitoring.apps.localhost prometheus-k8s-openshift-monitoring.apps.localhost)
 
     #
     # Provision VMs using shell

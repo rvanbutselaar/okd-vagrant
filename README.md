@@ -8,7 +8,7 @@ cd ~/openshift-ansible && ansible-playbook -i /vagrant/ansible/inventory playboo
 
 # 1 master & 1 node
 ```
-pip install ansible==2.4.3.0
+pip install ansible==2.6.5
 make clean && make clone && make masternode
 ```
 
@@ -30,3 +30,20 @@ ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansi
 
 watch "oc get no -o wide; echo ''; oc get po --all-namespaces"
 ```
+
+
+ANSIBLE_HOST_KEY_CHECKING=false \
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o IdentityFile=~/.vagrant.d/insecure_private_key -o ControlMaster=auto -o ControlPersist=60s' \
+ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansible/inventory -v /tmp/openshift-ansible/playbooks/openshift-monitoring/config.yml
+
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o IdentityFile=~/.vagrant.d/insecure_private_key -o ControlMaster=auto -o ControlPersist=60s' \
+ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansible/inventory -v /tmp/openshift-ansible/playbooks/openshift-metrics/config.yml
+
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o IdentityFile=~/.vagrant.d/insecure_private_key -o ControlMaster=auto -o ControlPersist=60s' \
+ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansible/inventory -v /tmp/openshift-ansible/playbooks/openshift-prometheus/config.yml
+
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o IdentityFile=~/.vagrant.d/insecure_private_key -o ControlMaster=auto -o ControlPersist=60s' \
+ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansible/inventory -v /tmp/openshift-ansible/playbooks/openshift-logging/config.yml
+
+ANSIBLE_SSH_ARGS='-o UserKnownHostsFile=/dev/null -o IdentitiesOnly=yes -o IdentityFile=~/.vagrant.d/insecure_private_key -o ControlMaster=auto -o ControlPersist=60s' \
+ansible-playbook --connection=ssh --timeout=30 -e "ansible_user=vagrant" -i ansible/inventory -v /tmp/openshift-ansible/playbooks/openshift-autoheal/config.yml
