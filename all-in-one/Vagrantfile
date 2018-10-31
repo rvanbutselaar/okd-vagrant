@@ -80,10 +80,20 @@ Vagrant.configure(2) do |config|
 
       #
       # Provision VMs using shell
-      # Remove default Vagrant hostfile line, we want to use hostmanager
       #
-      node.vm.provision :shell, inline: "sed -i'' '/^127.0.0.1\\t#{node.vm.hostname}\\t#{hostname}$/d' /etc/hosts"
       node.vm.provision :shell, :path => "prepare-install.sh"
+      node.vm.provision :ansible do |ansible|
+        ansible.limit = ""
+        ansible.verbose = true
+        ansible.inventory_path = "ansible/inventory"
+        ansible.playbook = "/tmp/openshift-ansible/playbooks/prerequisites.yml"
+      end
+      node.vm.provision :ansible do |ansible|
+        ansible.limit = ""
+        ansible.verbose = true
+        ansible.inventory_path = "ansible/inventory"
+        ansible.playbook = "/tmp/openshift-ansible/playbooks/deploy_cluster.yml"
+      end
     end
   end
 end
