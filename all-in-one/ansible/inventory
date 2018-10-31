@@ -8,6 +8,11 @@ etcd
 [OSEv3:vars]
 ansible_become=true
 
+container_runtime_docker_storage_setup_device=/dev/sdb
+container_runtime_docker_storage_type=overlay2
+
+containerized=true
+
 openshift_deployment_type=origin
 
 # uncomment the following to enable htpasswd authentication; defaults to AllowAllPasswordIdentityProvider
@@ -18,28 +23,27 @@ openshift_master_htpasswd_users={'admin': '$apr1$Mf7W16Gb$6qoVR4GSLFueI4XpdMSa60
 openshift_node_groups=[{'name': 'node-config-all-in-one', 'labels': ['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true', 'node-role.kubernetes.io/compute=true']}]
 openshift_disable_check=memory_availability,disk_availability,docker_storage
 
-openshift_release="3.10"
 openshift_ip=10.0.0.111
 
 openshift_release="3.11"
 openshift_additional_repos=[{'id': 'centos-okd-ci', 'name': 'centos-okd-ci', 'baseurl' :'https://rpms.svc.ci.openshift.org/openshift-origin-v3.11', 'gpgcheck' :'0', 'enabled' :'1'}]
-
+openshift_use_crio=True
 
 ansible_service_broker_install=false
-#openshift_metrics_install_metrics=true
-#openshift_logging_install_logging=true
-#openshift_hosted_prometheus_deploy=true
+#openshift_metrics_install_metrics=false
+#openshift_logging_install_logging=false
+#openshift_hosted_prometheus_deploy=false
 
 openshift_master_default_subdomain=apps.localhost
 
 # host group for masters
 [masters]
-okd-master1 ansible_connection=local
+okd-master1 ansible_ssh_port=22
 
 # host group for etcd
 [etcd]
-okd-master1 ansible_connection=local
+okd-master1 ansible_ssh_port=22
 
 # host group for nodes, includes region info
 [nodes]
-okd-master1 openshift_node_group_name=node-config-all-in-one ansible_connection=local
+okd-master1 openshift_node_group_name=node-config-all-in-one ansible_ssh_port=22
