@@ -1,9 +1,7 @@
 # localhost all in one
 ```
-cd all-in-one
-vagrant up
-vagrant ssh
-cd ~/openshift-ansible && ansible-playbook -i /vagrant/ansible/inventory playbooks/prerequisites.yml -b && ansible-playbook -i /vagrant/ansible/inventory playbooks/deploy_cluster.yml -b
+pip install ansible==2.6.5
+make clean && make clone && make allinone
 ```
 
 # 1 master & 1 node

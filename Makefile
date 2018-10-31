@@ -4,8 +4,8 @@ ODK_VERSION=release-3.11
 clone:
 	git clone -b ${ODK_VERSION} https://github.com/openshift/openshift-ansible ${GIT_TMP_DIR}/openshift-ansible
 
-# all-in-one:
-# 	@make clone
+allinone:
+	cd all-in-one && vagrant up
 
 masternode:
 	cd master-node &&	vagrant up
