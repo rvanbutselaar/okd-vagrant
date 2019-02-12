@@ -1,0 +1,62 @@
+# Create an OSEv3 group that contains the masters, nodes, and etcd groups
+[OSEv3:children]
+masters
+nodes
+etcd
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+oreg_auth_user=
+oreg_auth_password=
+
+ansible_become=true
+
+container_runtime_docker_storage_setup_device=/dev/sdb
+container_runtime_docker_storage_type=overlay2
+
+containerized=true
+
+openshift_deployment_type=openshift-enterprise
+
+# uncomment the following to enable htpasswd authentication; defaults to AllowAllPasswordIdentityProvider
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+# Defining htpasswd users
+openshift_master_htpasswd_users={'admin': '$apr1$Mf7W16Gb$6qoVR4GSLFueI4XpdMSa60'}
+
+openshift_node_groups=[{'name': 'node-config-all-in-one', 'labels': ['node-role.kubernetes.io/master=true', 'node-role.kubernetes.io/infra=true', 'node-role.kubernetes.io/compute=true']}]
+openshift_disable_check=memory_availability,disk_availability,docker_storage
+
+openshift_ip=10.0.0.111
+
+openshift_release="3.11"
+openshift_use_crio=True
+
+osm_use_cockpit=false
+openshift_enable_olm=false
+ansible_service_broker_install=false
+ansible_service_broker_install=false
+openshift_metrics_install_metrics=false
+openshift_logging_install_logging=false
+openshift_hosted_prometheus_deploy=false
+openshift_cluster_monitoring_operator_install=false
+
+openshift_master_default_subdomain=apps.localhost
+
+openshift_storage_glusterfs_namespace=glusterfs
+openshift_storage_glusterfs_name=gluster01
+glusterfs_devices="['/dev/vdc']"
+
+# host group for masters
+[masters]
+rhel-master1 ansible_ssh_port=22
+
+# [glusterfs]
+# rhel-master1 ansible_ssh_port=22
+
+# host group for etcd
+[etcd]
+rhel-master1 ansible_ssh_port=22
+
+# host group for nodes, includes region info
+[nodes]
+rhel-master1 openshift_node_group_name=node-config-all-in-one ansible_ssh_port=22

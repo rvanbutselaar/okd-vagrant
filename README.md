@@ -4,6 +4,24 @@ pip install ansible==2.6.5
 make clean && make clone && make allinone
 ```
 
+# localhost all in one openshift-enterprise
+```
+pip install ansible==2.6.5
+make clean && make clone && make rhel-enterprise
+
+sudo subscription-manager register --username
+sudo subscription-manager attach --pool=
+sudo subscription-manager repos --enable=rhel-7-server-rpms
+sudo subscription-manager repos --enable=rhel-7-server-extras-rpms
+sudo subscription-manager repos --enable=rhel-7-server-ose-3.11-rpms
+
+# Configure inside inventory:
+oreg_auth_user=
+oreg_auth_password=
+
+sudo subscription-manager unregister
+```
+
 # 1 master & 1 node
 ```
 pip install ansible==2.6.5

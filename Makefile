@@ -10,6 +10,9 @@ allinone:
 masternode:
 	cd master-node &&	vagrant up
 
+rhel-enterprise:
+	cd master-node &&	vagrant up
+
 clean:
 	rm -rvf ${GIT_TMP_DIR}/openshift-ansible
 
